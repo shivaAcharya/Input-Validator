@@ -5,6 +5,7 @@ child_files_data => dictionary with keys as child file objects, and values as
 
 """
 from file import File
+import material
 import json
 
 master_material_info_db = {}
@@ -33,11 +34,11 @@ for file in child_filenames:
 
 material_info = {}
 for child_file, input_data in child_files_with_data.items():
-    material_info = child_file.get_material_info(input_data)
+    material_info = material.get_material_info(input_data)
     break
 
 with open(output_file_path + "\\Report.txt", 'w') as outputFile:
     outputFile.write(json.dumps(material_info, indent=4, sort_keys=True))
 
-#print(master_file.get_filenames(master_file_data))
-#print(child_files_with_data.keys())
+# print(master_file.get_filenames(master_file_data))
+# print(child_files_with_data.keys())
