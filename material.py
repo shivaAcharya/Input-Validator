@@ -13,7 +13,7 @@ get_material_info => Ignore property of Material and just extract material value
 
 # Get Material Info
 def get_material_info(input_data):
-    """ Returns dictionary of dictionaries if MAT card has property"""
+    """ Returns dictionary with MAT Card name as keys and List of material values as values"""
     material_info = {}
 
     for line, data in enumerate(input_data):
