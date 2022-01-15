@@ -2,56 +2,53 @@
 Data Structures:
 get_filenames => list of filenames => Ex. ["Yaris..", "roof_crush_impactor"]
 get_material_info => Ignore property of Material and just extract material value for now
-                        material_info = {mat_card_name : [mat_value]}
-                        Ex. {"PIECEWISE_LINEAR_PLASTICITY": [[200001, 7.89E-9], [20002,...]]}
+                        material_info = {"filename": {mat_card_name : [(TITLE,) mat_value]}
+                        Ex. {"filename": {"PIECEWISE_LINEAR_PLASTICITY": [[200001, 7.89E-9], [20002,...]]}}
 
 """
 
-# TODO: #1 Look for better data structure for get_material_info method.
-# TOD0: #2 Better way to exit while loop
+long_format = False
 
 
 # Get Material Info
 def get_material_info(input_data):
     """ Returns dictionary with MAT Card name as keys and List of material values as values"""
+    global long_format
     material_info = {}
-
+    step = 10
     for line, data in enumerate(input_data):
-        mat_property_value = {}
+        if data.rstrip("\n").lower() == "*KEYWORD LONG=Y":
+            long_format = True
+            step = 20
 
         # For MAT Card
         if data.startswith('*MAT'):
             # Do this until next card or section is reached
-            mat_card_name = ""
-            while input_data[line + 1].startswith('$#'):  # or input_data[line+1].startswith(" "):
-                mat_card_name = data.lstrip("*MAT_").rstrip("\n")
-                # Multi line material property
-                if input_data[line + 1].startswith('$#'):
-                    mat_property = input_data[line + 1].lstrip('$#').split()
-                    mat_value = input_data[line + 2].split()
-                # One line material property
-                elif input_data[line + 1].startswith('$'):
-                    mat_property = input_data[line + 1].lstrip('$').split()
-                    mat_value = input_data[line + 2].split()
-                # If no comment, put N/A for property
-                else:
-                    mat_property = ["N/A"] * len(input_data[line + 1])
-                    mat_value = input_data[line + 1].split()
+            mat_card_name = data.rstrip("\n")
 
-                if len(mat_property) > 0:
-                    # If not used present:
-                    if len(mat_property) > len(mat_value):
-                        mat_property[-2] = mat_property[-2] + " " + mat_property[-1]
-                        mat_property.pop()
+            mat_value = []
+            # Skip the line if TEST
+            if input_data[line].endswith("TITLE"):
+                mat_value.append([input_data[line+1].rstrip("\n")])
+                line += 1
 
-                    # Store property and value for each Mat Card
-                    mat_property_value_one_line = {}
-                    for i, card_property in enumerate(mat_property):
-                        mat_property_value_one_line[card_property] = mat_value[i]
-                    mat_property_value |= mat_property_value_one_line
+            # Populate mat_value
+            while input_data[line + 1].startswith('$') and input_data[line+2].startswith(" "):
+                for i in range(0, len(input_data[line+2].rstrip("\n")), step):
+                    mat_value.append(input_data[line+2][i:i+step])
 
                 line += 2
 
-            material_info[mat_card_name] = material_info.get(mat_card_name, []) + [mat_property_value]
+            # # If no comments
+            while input_data[line + 1].startswith(' '):
+                for i in range(0, len(input_data[line + 1].rstrip("\n")), step):
+                    mat_value.append(input_data[line + 1][i:i + step])
+                line += 1
+
+            # Store mat name and value for each Mat Card
+            if mat_card_name not in material_info:
+                material_info[mat_card_name] = [mat_value]
+            else:
+                material_info[mat_card_name].append(mat_value)
 
     return material_info

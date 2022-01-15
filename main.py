@@ -34,11 +34,10 @@ for file in child_filenames:
 
 material_info = {}
 for child_file, input_data in child_files_with_data.items():
-    material_info = material.get_material_info(input_data)
-    break
+    material_info[str(child_file)] = material.get_material_info(input_data)
 
 with open(output_file_path + "\\Report.txt", 'w') as outputFile:
-    outputFile.write(json.dumps(material_info, indent=4, sort_keys=True))
+    outputFile.write(json.dumps(material_info, indent=4, sort_keys=False))
 
 # print(master_file.get_filenames(master_file_data))
 # print(child_files_with_data.keys())

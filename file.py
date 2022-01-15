@@ -7,6 +7,9 @@ class File:
         self.filename = filename
         self.filepath = filepath
 
+    def __str__(self):
+        return self.filename
+
     # Get File data list with each line as one element
     def get_file_data(self):
         file_filename_path = os.path.join(self.filepath, self.filename)
