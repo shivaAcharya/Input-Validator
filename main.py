@@ -7,12 +7,13 @@ child_files_data => dictionary with keys as child file objects, and values as
 from file import File
 import material
 import json
+import os
 
 master_material_info_db = {}
 
 master_file_name = "000_yaris_dynamic_roof_crush_01.k"
 master_file_path = r"D:\Learning\Computer Science\Projects\Input Validator\zip-for-download"
-output_file_path = "D:\\Learning\\Computer Science\\Projects\\Input Validator\\zip-for-download"
+output_file_path = r"D:\Learning\Computer Science\Projects\Input Validator\zip-for-download"
 
 # Create master_file object
 master_file = File(master=True, filename=master_file_name, filepath=master_file_path)
@@ -36,7 +37,8 @@ material_info = {}
 for child_file, input_data in child_files_with_data.items():
     material_info[str(child_file)] = material.get_material_info(input_data)
 
-with open(output_file_path + "\\Report.txt", 'w') as outputFile:
+output_file = os.path.join(output_file_path, "Report.txt")
+with open(output_file, 'w') as outputFile:
     outputFile.write(json.dumps(material_info, indent=4, sort_keys=False))
 
 # print(master_file.get_filenames(master_file_data))

@@ -13,11 +13,17 @@ long_format = False
 # Get Material Info
 def get_material_info(input_data):
     """ Returns dictionary with MAT Card name as keys and List of material values as values"""
+
+    # Remove comments from input_data
+    input_data = [data for data in input_data if not data.startswith("$")]
+
     global long_format
     material_info = {}
     step = 10
     for line, data in enumerate(input_data):
-        if data.rstrip("\n").lower() == "*KEYWORD LONG=Y":
+
+        # Check for long format
+        if data.rstrip("\n").lower() == "*keyword long=y":
             long_format = True
             step = 20
 
@@ -28,19 +34,13 @@ def get_material_info(input_data):
 
             mat_value = []
             # Skip the line if TEST
-            if input_data[line].endswith("TITLE"):
-                mat_value.append([input_data[line+1].rstrip("\n")])
+            if input_data[line].endswith("TITLE\n"):
+                mat_value.append(input_data[line + 1].rstrip("\n"))
                 line += 1
 
             # Populate mat_value
-            while input_data[line + 1].startswith('$') and input_data[line+2].startswith(" "):
-                for i in range(0, len(input_data[line+2].rstrip("\n")), step):
-                    mat_value.append(input_data[line+2][i:i+step])
-
-                line += 2
-
-            # # If no comments
-            while input_data[line + 1].startswith(' '):
+            print(step)
+            while input_data[line + 1].startswith(" ") or input_data[line+1].isdigit():
                 for i in range(0, len(input_data[line + 1].rstrip("\n")), step):
                     mat_value.append(input_data[line + 1][i:i + step])
                 line += 1
